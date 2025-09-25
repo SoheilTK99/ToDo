@@ -6,6 +6,9 @@ from .serializers import ToDoSerializer
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
+from rest_framework import generics, mixins
+from rest_framework import viewsets
+
 
 #region function base view
 @api_view(['GET', 'POST'])
@@ -84,4 +87,54 @@ class ToDosDetailApiView(APIView):
         todo.delete()
         return Response(None, status.HTTP_204_NO_CONTENT)       
 #endregion
+
+#region mixin
+class ToDosListMixinApiView(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
+    queryset = ToDo.objects.order_by('priority').all()
+    serializer_class = ToDoSerializer
+
+    def get(self, request:Request):
+        return self.list(request)
+    
+    def post(self, request:Request):
+        return self.create(request)
+    
+
+class ToDosDetailMixinApiView(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
+    queryset = ToDo.objects.order_by('priority').all()
+    serializer_class = ToDoSerializer   
+
+    def get(self, request:Request, pk):
+        return self.retrieve(request, pk)    
+
+    def put(self, request:Request, pk):
+        return self.update(request, pk)
+
+    def delete(self, request:Request, pk):
+        return self.destroy(request, pk)  
+
+#endregion
+
+#region grneric
+
+class ToDoGenericApiView(generics.ListCreateAPIView):
+    queryset = ToDo.objects.order_by('priority').all()
+    serializer_class = ToDoSerializer    
+
+
+class ToDoGenericDetailApiView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = ToDo.objects.order_by('priority').all()
+    serializer_class = ToDoSerializer 
+
+#endregion
+
+#region viewset
+
+class ToDosViewsetApiView(viewsets.ModelViewSet):
+    queryset = ToDo.objects.order_by('priority').all()
+    serializer_class = ToDoSerializer     
+
+#endregion
+
+
 
