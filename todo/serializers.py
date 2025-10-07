@@ -6,6 +6,12 @@ User = get_user_model()
 
 
 class ToDoSerializer(serializers.ModelSerializer):
+
+    def validate_priority(self, priority):
+        if priority > 10 or priority < 0 :
+            raise serializers.ValidationError('Invalid...')
+        return priority
+
     class Meta:
         model = ToDo
         fields = '__all__'
